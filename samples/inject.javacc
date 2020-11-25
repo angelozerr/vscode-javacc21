@@ -1,0 +1,62 @@
+INJECT A: {
+
+}
+INJECT A : import a;import b;
+
+INJECT A : import a;import a;{String s;} import a;import a;
+import a;
+
+INJECT A : import a;
+{
+  String s;
+}
+
+INJECT A :
+  import a;
+  import a;
+  extends v;
+  implements n;
+{String s;}
+
+INJECT A :
+{
+}
+{
+  String s;
+}
+
+INJECT ABBBB : {
+  //kkkkkkkkkkk
+ import s;
+}
+//kkkkkkkkkkk
+{
+  //kkkkkkkkkkk
+  String s;
+}
+//kkkkkkkkkkk
+
+INJECT A : import a;
+import n;
+INJECT A : import a; import n;
+
+INJECT A : {
+  String a;
+}
+
+INJECT A : {
+  String a;
+}
+
+INJECT A : import a;
+
+INJECT A : import a;
+import b;
+extends c;
+
+INJECT A : {
+  import b;
+}
+{
+  String s;
+}

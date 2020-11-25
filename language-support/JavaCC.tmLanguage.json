@@ -1,0 +1,132 @@
+{
+  "name": "JavaCC",
+  "fileTypes": [
+    "javacc"
+  ],
+  "patterns": [
+    {
+      "include": "#inject"
+    },
+    {
+      "include": "#comments"
+    }
+  ],
+  "repository": {
+    "inject": {
+      "begin": "^\\s*(INJECT)\\s*(\\()?(class|interface)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\))?\\s*(\\:)\\s*",
+      "end": "(?=.)",
+      "applyEndPatternLast": 1,
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.javacc"
+        },
+        "2": {
+          "name": "punctuation.definition.parameters.begin.bracket.round.javacc"
+        },
+        "3": {
+          "name": "storage.modifier.javacc"
+        },
+        "4": {
+          "name": "variable.parameter.javacc"
+        },
+        "5": {
+          "name": "punctuation.definition.parameters.end.bracket.round.javacc"
+        },
+        "6": {
+          "name": "punctuation.section.inject.begin.colon.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "\\s*({)",
+          "end": "\\s*(})",
+          "patterns": [
+            {
+              "include": "source.java"
+            }
+          ]
+        },
+        {
+          "begin": "\\s*\\b(import)\\b\\s*",
+          "end": "\\s*;",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.import.java"
+            }
+          }
+        },
+        {
+          "begin": "\\s*\\b(extends)\\b\\s*",
+          "end": "\\s*;",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.modifier.extends.java"
+            }
+          }
+        },
+        {
+          "begin": "\\s*\\b(implements)\\b\\s*",
+          "end": "\\s*;",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.modifier.implements.java"
+            }
+          }
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.comment.javacc"
+            }
+          },
+          "match": "/\\*\\*/",
+          "name": "comment.block.empty.javacc"
+        },
+        {
+          "include": "#comments-inline"
+        }
+      ]
+    },
+    "comments-inline": {
+      "patterns": [
+        {
+          "begin": "/\\*",
+          "captures": {
+            "0": {
+              "name": "punctuation.definition.comment.javacc"
+            }
+          },
+          "end": "\\*/",
+          "name": "comment.block.javacc"
+        },
+        {
+          "begin": "(^[ \\t]+)?(?=//)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.javacc"
+            }
+          },
+          "end": "(?!\\G)",
+          "patterns": [
+            {
+              "begin": "//",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.comment.javacc"
+                }
+              },
+              "end": "\\n",
+              "name": "comment.line.double-slash.javacc"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scopeName": "source.javacc",
+  "uuid": "7ba10786-68d6-4715-9a3e-bcbbda9854a2"
+}
