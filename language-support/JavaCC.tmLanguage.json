@@ -5,6 +5,12 @@
   ],
   "patterns": [
     {
+      "include": "#javacc-options"
+    },
+    {
+      "include": "#javacc-parser"
+    },
+    {
       "include": "#inject"
     },
     {
@@ -12,6 +18,76 @@
     }
   ],
   "repository": {
+    "javacc-options": {
+      "name": "meta.options.javacc",
+      "end": "(?<=\\})",
+      "begin": "\\b(options|OPTIONS)\\b",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.other.options.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "name": "meta.options.block.javacc",
+          "begin": "\\{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.block.begin.javacc"
+            }
+          },
+          "end": "\\}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.block.end.javacc"
+            }
+          },
+          "patterns": [
+            {
+              "name": "variable.other.option.javacc",
+              "match": "\\b(QUIET|TABS_TO_SPACES|DEBUG_PARSER|DEBUG_LEXER|FAULT_TOLERANT|PRESERVE_LINE_ENDINGS|JAVA_UNICODE_ESCAPE|IGNORE_CASE|USER_DEFINED_LEXER|LEXER_USES_PARSER|PARSER_PACKAGE|PARSER_CLASS|DEBUG_TOKEN_MANAGER|IGNORE_CASE|JAVA_UNICODE_ESCAPE|USER_TOKEN_MANAGER|USER_DEFINED_LEXER|TOKEN_MANAGER_USES_PARSER)\\b"
+            },
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#comments"
+            },
+            {
+              "include": "#constants-and-special-vars"
+            },
+            {
+              "include": "#numbers"
+            }
+          ]
+        }
+      ]
+    },
+    "javacc-parser": {
+      "begin": "\\b(PARSER_BEGIN)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.parser.javacc"
+        },
+        "2": {
+          "name": "variable.parameter.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "include": "source.java"
+        }
+      ],
+      "end": "\\b(PARSER_END)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*",
+      "endCaptures": {
+        "1": {
+          "name": "entity.name.function.parser.javacc"
+        },
+        "2": {
+          "name": "variable.parameter.javacc"
+        }
+      }
+    },
     "inject": {
       "begin": "^\\s*(INJECT)\\s*(\\()?(class|interface)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\))?\\s*(\\:)\\s*",
       "end": "(?=.)",
@@ -123,6 +199,34 @@
               "name": "comment.line.double-slash.javacc"
             }
           ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "match": "(?x)\n\\b(?<!\\$)\n0(x|X)\n(\n  (?<!\\.)[0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?[Ll]?(?!\\.)\n  |\n  (\n    [0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?\\.?\n    |\n    ([0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?)?\\.[0-9a-fA-F]([0-9a-fA-F_]*[0-9a-fA-F])?\n  )\n  [Pp][+-]?[0-9]([0-9_]*[0-9])?[FfDd]?\n)\n\\b(?!\\$)",
+          "name": "constant.numeric.hex.javacc"
+        },
+        {
+          "match": "\\b(?<!\\$)0(b|B)[01]([01_]*[01])?[Ll]?\\b(?!\\$)",
+          "name": "constant.numeric.binary.javacc"
+        },
+        {
+          "match": "\\b(?<!\\$)0[0-7]([0-7_]*[0-7])?[Ll]?\\b(?!\\$)",
+          "name": "constant.numeric.octal.javacc"
+        },
+        {
+          "match": "(?x)\n(?<!\\$)\n(\n  \\b[0-9]([0-9_]*[0-9])?\\.\\B(?!\\.)\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([Ee][+-]?[0-9]([0-9_]*[0-9])?)[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?\\.([0-9]([0-9_]*[0-9])?)([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]?\\b\n  |\n  (?<!\\.)\\B\\.[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)[FfDd]?\\b\n  |\n  \\b[0-9]([0-9_]*[0-9])?([Ee][+-]?[0-9]([0-9_]*[0-9])?)?[FfDd]\\b\n  |\n  \\b(0|[1-9]([0-9_]*[0-9])?)(?!\\.)[Ll]?\\b\n)\n(?!\\$)",
+          "name": "constant.numeric.decimal.javacc"
+        }
+      ]
+    },
+    "constants-and-special-vars": {
+      "patterns": [
+        {
+          "match": "\\b(true|false|null)\\b",
+          "name": "constant.language.javacc"
         }
       ]
     }
