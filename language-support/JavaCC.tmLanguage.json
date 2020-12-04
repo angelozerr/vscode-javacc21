@@ -11,6 +11,9 @@
       "include": "#javacc-parser"
     },
     {
+      "include": "#token-production"
+    },
+    {
       "include": "#inject"
     },
     {
@@ -88,6 +91,129 @@
         }
       }
     },
+    "token-production": {
+      "begin": "(<?)\\s*(>?)\\s*\\b(TOKEN|SPECIAL_TOKEN|UNPARSED|MORE|SKIP)\\b\\s*\\(?\\s*(#[a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*(:)\\s*",
+      "end": "(?=.)",
+      "applyEndPatternLast": 1,
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.other.javacc"
+        },
+        "2": {
+          "name": "variable.parameter.javacc"
+        },
+        "3": {
+          "name": "keyword.other.javacc"
+        },
+        "4": {
+          "name": "variable.other.identifier.javacc"
+        },
+        "5": {
+          "name": "punctuation.section.token-production.begin.colon.javacc"
+        }
+      },
+      "contentName": "meta.token-production.javacc",
+      "patterns": [
+        {
+          "begin": "{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.token-production.begin.bracket.curly.javacc"
+            }
+          },
+          "end": "}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.token-production.end.bracket.curly.javacc"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#regexp-spec"
+            }
+          ]
+        },
+        {
+          "begin": "(?=\\s*[\"<])",
+          "end": ";",
+          "patterns": [
+            {
+              "include": "#regexp-spec"
+            },
+            {
+              "match": ";",
+              "name": "punctuation.terminator.javacc"
+            }
+          ]
+        }
+      ]
+    },
+    "regexp-spec": {
+      "patterns": [
+        {
+          "include": "#regexp-expansion"
+        },
+        {
+          "match": "\\|",
+          "name": "punctuation.separator.delimiter.javacc"
+        },
+        {
+          "include": "#comments"
+        }
+      ]
+    },
+    "regexp-expansion": {
+      "patterns": [
+        {
+          "begin": "(?=\"|<)",
+          "end": "$",
+          "patterns": [
+            {
+              "include": "#strings"
+            },
+            {
+              "include": "#comments"
+            },
+            {
+              "include": "#regexp-ref"
+            },
+            {
+              "include": "#code-block"
+            },
+            {
+              "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
+              "name": "variable.parameter.local.javacc"
+            }
+          ]
+        }
+      ]
+    },
+    "regexp-ref": {
+      "begin": "<",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.bracket.angle.javacc"
+        }
+      },
+      "end": ">",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.bracket.angle.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#comments"
+        },
+        {
+          "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
+          "name": "variable.parameter.regexp.javacc"
+        }
+      ]
+    },
     "inject": {
       "begin": "^\\s*(INJECT)\\s*(\\()?(class|interface)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\))?\\s*(\\:)\\s*",
       "end": "(?=.)",
@@ -114,13 +240,7 @@
       },
       "patterns": [
         {
-          "begin": "\\s*({)",
-          "end": "\\s*(})",
-          "patterns": [
-            {
-              "include": "source.java"
-            }
-          ]
+          "include": "#code-block"
         },
         {
           "begin": "\\s*\\b(import)\\b\\s*",
@@ -202,6 +322,31 @@
         }
       ]
     },
+    "strings": {
+      "patterns": [
+        {
+          "begin": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.javacc"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.javacc"
+            }
+          },
+          "name": "string.quoted.double.javacc",
+          "patterns": [
+            {
+              "match": "\\\\.",
+              "name": "constant.character.escape.javacc"
+            }
+          ]
+        }
+      ]
+    },
     "numbers": {
       "patterns": [
         {
@@ -227,6 +372,27 @@
         {
           "match": "\\b(true|false|null)\\b",
           "name": "constant.language.javacc"
+        }
+      ]
+    },
+    "hash-id": {
+      "patterns": [
+        {
+          "match": "#[a-zA-Z_$][\\w$]*",
+          "name": "entity.name.identifier.javacc"
+        }
+      ]
+    },
+    "code-block": {
+      "patterns": [
+        {
+          "begin": "\\s*({)",
+          "end": "\\s*(})",
+          "patterns": [
+            {
+              "include": "source.java"
+            }
+          ]
         }
       ]
     }
