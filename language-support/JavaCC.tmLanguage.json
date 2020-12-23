@@ -14,10 +14,16 @@
       "include": "#token-production"
     },
     {
+      "include": "#include"
+    },
+    {
       "include": "#inject"
     },
     {
       "include": "#comments"
+    },
+    {
+      "include": "#bnf-production"
     }
   ],
   "repository": {
@@ -67,7 +73,7 @@
       ]
     },
     "javacc-parser": {
-      "begin": "\\b(PARSER_BEGIN)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*",
+      "begin": "\\b(PARSER_BEGIN)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?",
       "beginCaptures": {
         "1": {
           "name": "entity.name.function.parser.javacc"
@@ -81,7 +87,8 @@
           "include": "source.java"
         }
       ],
-      "end": "\\b(PARSER_END)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*",
+      "end": "\\b(PARSER_END)\\b\\s*\\(?\\s*([a-zA-Z_$][\\w$]*)?\\s*\\)?",
+      "name": "meta.javacc-parser.javacc",
       "endCaptures": {
         "1": {
           "name": "entity.name.function.parser.javacc"
@@ -92,28 +99,50 @@
       }
     },
     "token-production": {
-      "begin": "(<?)\\s*(>?)\\s*\\b(TOKEN|SPECIAL_TOKEN|UNPARSED|MORE|SKIP)\\b\\s*\\(?\\s*(#[a-zA-Z_$][\\w$]*)?\\s*\\)?\\s*(:)\\s*",
-      "end": "(?=.)",
-      "applyEndPatternLast": 1,
-      "beginCaptures": {
-        "1": {
-          "name": "keyword.other.javacc"
-        },
-        "2": {
-          "name": "variable.parameter.javacc"
-        },
-        "3": {
-          "name": "keyword.other.javacc"
-        },
-        "4": {
-          "name": "variable.other.identifier.javacc"
-        },
-        "5": {
-          "name": "punctuation.section.token-production.begin.colon.javacc"
-        }
-      },
-      "contentName": "meta.token-production.javacc",
+      "begin": "(?=(?:<?).*(?:>?)\\s*\\b(?:TOKEN_MGR_DECLS|TOKEN|SPECIAL_TOKEN|UNPARSED|MORE|SKIP))",
+      "end": "(?<=\\;|})",
+      "name": "meta.token-production.javacc",
       "patterns": [
+        {
+          "begin": "<",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.referenced-tokens.begin.bracket.angle.javacc"
+            }
+          },
+          "end": ">",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.referenced-tokens.end.bracket.angle.javacc"
+            }
+          },
+          "name": "meta.referenced-tokens.javacc",
+          "patterns": [
+            {
+              "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
+              "name": "entity.name.function.start-token-production.javacc"
+            },
+            {
+              "match": ",",
+              "name": "punctuation.separator.delimiter.javacc"
+            }
+          ]
+        },
+        {
+          "include": "#comments"
+        },
+        {
+          "captures": {
+            "2": {
+              "name": "punctuation.section.token-production.begin.colon.javacc"
+            }
+          },
+          "match": "(TOKEN_MGR_DECLS|TOKEN|SPECIAL_TOKEN|UNPARSED|MORE|SKIP)",
+          "name": "storage.modifier.javacc"
+        },
+        {
+          "include": "#hash-identifier"
+        },
         {
           "begin": "{",
           "beginCaptures": {
@@ -134,21 +163,23 @@
           ]
         },
         {
-          "begin": "(?=\\s*[\"<])",
+          "begin": "\\s*(?=[\"<])",
           "end": ";",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.terminator.javacc"
+            }
+          },
           "patterns": [
             {
               "include": "#regexp-spec"
-            },
-            {
-              "match": ";",
-              "name": "punctuation.terminator.javacc"
             }
           ]
         }
       ]
     },
     "regexp-spec": {
+      "name": "meta.regexp-spec.javacc",
       "patterns": [
         {
           "include": "#regexp-expansion"
@@ -166,7 +197,7 @@
       "patterns": [
         {
           "begin": "(?=\"|<)",
-          "end": "$",
+          "end": "(?=;|}|\\|)",
           "patterns": [
             {
               "include": "#strings"
@@ -181,8 +212,10 @@
               "include": "#code-block"
             },
             {
-              "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
-              "name": "variable.parameter.local.javacc"
+              "include": "#hash-identifier"
+            },
+            {
+              "include": "#identifier"
             }
           ]
         }
@@ -201,6 +234,7 @@
           "name": "punctuation.bracket.angle.javacc"
         }
       },
+      "name": "meta.regexp-ref.javacc",
       "patterns": [
         {
           "include": "#strings"
@@ -211,65 +245,167 @@
         {
           "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
           "name": "variable.parameter.regexp.javacc"
+        },
+        {
+          "match": "\\,",
+          "name": "punctuation.separator.delimiter.javacc"
         }
       ]
     },
-    "inject": {
-      "begin": "^\\s*(INJECT)\\s*(\\()?(class|interface)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\))?\\s*(\\:)\\s*",
-      "end": "(?=.)",
-      "applyEndPatternLast": 1,
-      "beginCaptures": {
-        "1": {
-          "name": "entity.name.function.javacc"
-        },
-        "2": {
-          "name": "punctuation.definition.parameters.begin.bracket.round.javacc"
-        },
-        "3": {
-          "name": "storage.modifier.javacc"
-        },
-        "4": {
-          "name": "variable.parameter.javacc"
-        },
-        "5": {
-          "name": "punctuation.definition.parameters.end.bracket.round.javacc"
-        },
-        "6": {
-          "name": "punctuation.section.inject.begin.colon.javacc"
-        }
-      },
+    "bnf-production": {
       "patterns": [
+        {
+          "begin": "(?=\\w?[\\w\\s]*\\b(?:.*\\s*\\:))",
+          "end": "(?<=\\}|;)",
+          "name": "meta.bnf-production.javacc",
+          "patterns": [
+            {
+              "include": "#storage-modifiers"
+            },
+            {
+              "match": "([a-zA-Z_$][\\w$]*+)?\\s*([a-zA-Z_$][\\w$]*+)\\s*(#[a-zA-Z_$][\\w$]*+)?",
+              "name": "meta.bnf-production.identifier.javacc",
+              "captures": {
+                "1": {
+                  "name": "storage.type.javacc"
+                },
+                "2": {
+                  "name": "entity.name.function.bnf-production.javacc"
+                },
+                "3": {
+                  "name": "entity.other.attribute-name.javacc"
+                }
+              }
+            },
+            {
+              "begin": ":\\s*",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.bnf-production.begin.javacc"
+                }
+              },
+              "end": "(?<=\\})|(?<=;)",
+              "contentName": "meta.bnf-production.body.javacc",
+              "patterns": [
+                {
+                  "begin": "\\{",
+                  "end": "\\}",
+                  "patterns": [
+                    {
+                      "begin": "(?=\\()",
+                      "end": "(?=\\))",
+                      "patterns": [
+                        {
+                          "include": "#expansion-choice"
+                        }
+                      ]
+                    },
+                    {
+                      "begin": "(?=\\[)",
+                      "end": "(?=\\])",
+                      "patterns": [
+                        {
+                          "include": "#expansion-choice"
+                        }
+                      ]
+                    },
+                    {
+                      "include": "source.java"
+                    }
+                  ]
+                },
+                {
+                  "begin": "(?=.)",
+                  "end": ";",
+                  "patterns": [
+                    {
+                      "include": "#expansion-choice"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "expansion-choice": {
+      "name": "meta.bnf-production.body.expansion-choice.javacc",
+      "patterns": [
+        {
+          "include": "#expansion-sequence"
+        },
+        {
+          "match": "\\|",
+          "name": "punctuation.separator.delimiter.javacc"
+        }
+      ]
+    },
+    "expansion-sequence": {
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#regexp-ref"
+        },
+        {
+          "include": "#identifier"
+        },
+        {
+          "begin": "\\(",
+          "end": "\\)",
+          "name": "meta.bnf-production.body.expansion-sequence.javacc",
+          "patterns": [
+            {
+              "include": "#expansion-unit"
+            }
+          ]
+        },
+        {
+          "begin": "\\[",
+          "end": "\\]",
+          "name": "meta.bnf-production.body.expansion-sequence.javacc",
+          "patterns": [
+            {
+              "include": "#expansion-unit"
+            }
+          ]
+        },
+        {
+          "begin": "\\{",
+          "end": "\\}",
+          "name": "meta.bnf-production.body.expansion-sequence.javacc",
+          "patterns": [
+            {
+              "include": "source.java"
+            }
+          ]
+        }
+      ]
+    },
+    "expansion-unit": {
+      "patterns": [
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#comments"
+        },
         {
           "include": "#code-block"
         },
         {
-          "begin": "\\s*\\b(import)\\b\\s*",
-          "end": "\\s*;",
-          "beginCaptures": {
-            "1": {
-              "name": "keyword.other.import.java"
-            }
-          }
-        },
-        {
-          "begin": "\\s*\\b(extends)\\b\\s*",
-          "end": "\\s*;",
-          "beginCaptures": {
-            "1": {
-              "name": "storage.modifier.extends.java"
-            }
-          }
-        },
-        {
-          "begin": "\\s*\\b(implements)\\b\\s*",
-          "end": "\\s*;",
-          "beginCaptures": {
-            "1": {
-              "name": "storage.modifier.implements.java"
-            }
-          }
+          "include": "#identifier"
         }
       ]
+    },
+    "storage-modifiers": {
+      "match": "\\b(public|private|protected)\\b",
+      "name": "storage.modifier.javacc"
     },
     "comments": {
       "patterns": [
@@ -375,24 +511,140 @@
         }
       ]
     },
-    "hash-id": {
+    "identifier": {
       "patterns": [
         {
-          "match": "#[a-zA-Z_$][\\w$]*",
-          "name": "entity.name.identifier.javacc"
+          "match": "[a-zA-Z$_][a-zA-Z0-9$_]*",
+          "name": "variable.parameter.identifier.javacc"
+        }
+      ]
+    },
+    "hash-identifier": {
+      "patterns": [
+        {
+          "match": "#[a-zA-Z$_][a-zA-Z0-9$_]*",
+          "name": "entity.name.function.javacc"
         }
       ]
     },
     "code-block": {
       "patterns": [
         {
-          "begin": "\\s*({)",
-          "end": "\\s*(})",
+          "begin": "{",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.section.code-block.begin.bracket.curly.javacc"
+            }
+          },
+          "end": "}",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.section.code-block.end.bracket.curly.javacc"
+            }
+          },
+          "name": "meta.code-block.javacc",
           "patterns": [
             {
               "include": "source.java"
             }
           ]
+        }
+      ]
+    },
+    "include": {
+      "begin": "^\\s*(INCLUDE)\\s*(\\()?\\s*(?=\")",
+      "end": "(?=\"|\\))",
+      "name": "meta.include.javacc",
+      "applyEndPatternLast": 1,
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#strings"
+        }
+      ]
+    },
+    "inject": {
+      "begin": "^\\s*(INJECT)\\s*(\\()?(class|interface)?\\s*([a-zA-Z_$][\\w$]*)\\s*(\\))?\\s*(\\:)\\s*",
+      "end": "(?=.)",
+      "name": "meta.inject.javacc",
+      "applyEndPatternLast": 1,
+      "beginCaptures": {
+        "1": {
+          "name": "entity.name.function.javacc"
+        },
+        "2": {
+          "name": "punctuation.definition.parameters.begin.bracket.round.javacc"
+        },
+        "3": {
+          "name": "storage.modifier.javacc"
+        },
+        "4": {
+          "name": "variable.parameter.javacc"
+        },
+        "5": {
+          "name": "punctuation.definition.parameters.end.bracket.round.javacc"
+        },
+        "6": {
+          "name": "punctuation.section.inject.begin.colon.javacc"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#code-block"
+        },
+        {
+          "begin": "\\s*\\b(import)\\b\\s*",
+          "end": "\\s*;\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.other.import.java"
+            }
+          }
+        },
+        {
+          "begin": "\\s*\\b(extends)\\b\\s*",
+          "end": "\\s*;\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.modifier.extends.java"
+            }
+          }
+        },
+        {
+          "begin": "\\s*(implements)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "storage.modifier.implements.java"
+            }
+          },
+          "end": "(?<=\\;)",
+          "name": "meta.definition.class.implemented.interfaces.java",
+          "patterns": [
+            {
+              "include": "#object-types-inherited"
+            }
+          ]
+        }
+      ]
+    },
+    "object-types-inherited": {
+      "patterns": [
+        {
+          "match": "\\b(?:[A-Z]\\w*\\s*(\\.)\\s*)*[A-Z]\\w*\\b",
+          "name": "entity.other.inherited-class.java",
+          "captures": {
+            "1": {
+              "name": "punctuation.separator.period.java"
+            }
+          }
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.delimiter.java"
         }
       ]
     }
